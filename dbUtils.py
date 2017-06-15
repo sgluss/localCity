@@ -1,4 +1,4 @@
-import redis
+import json
 
 # cityData is a string delimited by \t
 # The main 'geoname' table has the following fields :
@@ -58,11 +58,12 @@ def addCityToDB(cityData, db):
     if city == None:
         return
 
-    db.hset("cityData", city["geonameid"], city)
-
     # Geo Add
     db.execute_command('GEOADD',
                        "redisGEO",
                        float(city["longitude"]),
                        float(city["latitude"]),
                        city["geonameid"])
+
+    # Add city data
+    db.hset("cityData", city["geonameid"], json.dumps(city))

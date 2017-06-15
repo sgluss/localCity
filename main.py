@@ -1,24 +1,36 @@
 # Created by Sam Gluss 6/1/2017
 
 # Externals
-from flask import Flask
+from flask import Flask, request
+from flask_cors import CORS
+from flask_compress import Compress
 
 import urllib.request
 import os
 import zipfile
+import redis
 
 from dbUtils import *
 
 app = Flask(__name__)
+Compress(app)
+CORS(app)
 
 downloadWorkingDir = "download/"
 unzipOutput = "data/"
 dataZipURL = "http://download.geonames.org/export/dump/cities1000.zip"
 downloadedZipLastModded = ""
 
-@app.route("/")
-def hello():
-    return "Hello World!"
+@app.route("/getcities", methods=['POST'])
+def getCities():
+    data = json.loads(request.data)
+
+    cityIds = redisDB.execute_command('GEORADIUS', "redisGEO", data["lng"], data["lat"], data["radius"], "km")
+
+    if len(cityIds) == 0:
+        return "[]"
+
+    return json.dumps(redisDB.hmget("cityData", cityIds))
 
 def updateDBFromData(db):
     fileName = dataZipURL.split('/')[-1][0:-4] + ".txt"
@@ -53,10 +65,5 @@ if __name__ == "__main__":
     if lastModified != downloadedZipLastModded:
         updateCityDataFile()
         updateDBFromData(redisDB)
-
-    # test, cities within 10km of oakland, CA
-    retVal = redisDB.execute_command('GEORADIUSBYMEMBER', "redisGEO", "5378538", "10", "km")
-
-    redisDB.hmget("cityData", retVal)
 
     app.run()
