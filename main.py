@@ -10,9 +10,6 @@ import os
 import zipfile
 import redis
 
-import ssl
-context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-
 from dbUtils import *
 
 app = Flask(__name__)
@@ -69,5 +66,4 @@ if __name__ == "__main__":
         updateCityDataFile()
         updateDBFromData(redisDB)
 
-    context = ('ssl/localCity.crt', 'ssl/localCity.key')
-    app.run(host='127.0.0.1', debug = False)
+    app.run(host='0.0.0.0', debug = False)
