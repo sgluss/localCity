@@ -70,4 +70,4 @@ if __name__ == "__main__":
         updateDBFromData(redisDB)
 
     context = ('ssl/localCity.crt', 'ssl/localCity.key')
-    app.run(host='127.0.0.1', debug = False, ssl_context=context)
+    app.run(host='127.0.0.1', debug = False)
