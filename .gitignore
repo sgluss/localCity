@@ -94,3 +94,4 @@ ENV/
 # project specific
 /data/*
 /download/*
+/ssl

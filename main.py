@@ -10,6 +10,9 @@ import os
 import zipfile
 import redis
 
+import ssl
+context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+
 from dbUtils import *
 
 app = Flask(__name__)
@@ -23,7 +26,7 @@ downloadedZipLastModded = ""
 
 @app.route("/getcities", methods=['POST'])
 def getCities():
-    data = json.loads(request.data)
+    data = json.loads(request.data.decode('utf-8'))
 
     cityIds = redisDB.execute_command('GEORADIUS', "redisGEO", data["lng"], data["lat"], data["radius"], "km")
 
@@ -66,4 +69,5 @@ if __name__ == "__main__":
         updateCityDataFile()
         updateDBFromData(redisDB)
 
-    app.run()
+    context = ('ssl/localCity.crt', 'ssl/localCity.key')
+    app.run(host='127.0.0.1', debug = False, ssl_context=context)
