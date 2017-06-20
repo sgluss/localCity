@@ -30,12 +30,12 @@ def getCityProps(cityString):
         return
 
     city = {}
-    city["geonameid"] = propsList[0]
+    city["geonameid"] = int(propsList[0]) if propsList[0] else -1
     city["name"] = propsList[1]
     city["asciiname"] = propsList[2]
     city["alternatenames"] = propsList[3]
-    city["latitude"] = propsList[4]
-    city["longitude"] = propsList[5]
+    city["latitude"] = float(propsList[4])
+    city["longitude"] = float(propsList[5])
     city["feature class"] = propsList[6]
     city["feature code"] = propsList[7]
     city["country code"] = propsList[8]
@@ -44,9 +44,9 @@ def getCityProps(cityString):
     city["admin2 code"] = propsList[11]
     city["admin3 code"] = propsList[12]
     city["admin4 code"] = propsList[13]
-    city["population"] = propsList[14]
-    city["elevation"] = propsList[15]
-    city["dem"] = propsList[16]
+    city["population"] = int(propsList[14]) if propsList[14] else -1
+    city["elevation"] = int(propsList[15]) if propsList[15] else -1
+    city["dem"] = int(propsList[16]) if propsList[16] else -1
     city["timezone"] = propsList[17]
     city["modification date"] = propsList[18]
 
@@ -61,8 +61,8 @@ def addCityToDB(cityData, db):
     # Geo Add
     db.execute_command('GEOADD',
                        "redisGEO",
-                       float(city["longitude"]),
-                       float(city["latitude"]),
+                       city["longitude"],
+                       city["latitude"],
                        city["geonameid"])
 
     # Add city data
