@@ -66,7 +66,7 @@ if __name__ == "__main__":
     lastModified = [s for s in f.headers._headers if 'Last-Modified' in s[0]][0][1]
 
     if lastModified != downloadedZipLastModded:
-        #updateCityDataFile()
+        updateCityDataFile()
         updateDBFromData(redisDB)
 
     app.run(host='0.0.0.0', debug = False)
