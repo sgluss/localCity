@@ -36,6 +36,7 @@ def updateDBFromData(db):
     fileName = dataZipURL.split('/')[-1][0:-4] + ".txt"
     with open(unzipOutput + fileName, 'r', encoding="utf8") as file:
         sourceData = file.read().split("\n")
+        print("Reading city data into Redis")
 
         for entry in sourceData:
             addCityToDB(entry, db)
@@ -49,9 +50,11 @@ def updateCityDataFile():
     if not os.path.exists(unzipOutput):
         os.makedirs(unzipOutput)
 
+    print("Downloading city data zip file")
     urllib.request.urlretrieve(dataZipURL, downloadWorkingDir + fileName)
 
     # Unzip the downloaded file
+    print("unzipping city data text file")
     zip_ref = zipfile.ZipFile(downloadWorkingDir + fileName, 'r')
     zip_ref.extractall(unzipOutput)
     zip_ref.close()
@@ -63,7 +66,7 @@ if __name__ == "__main__":
     lastModified = [s for s in f.headers._headers if 'Last-Modified' in s[0]][0][1]
 
     if lastModified != downloadedZipLastModded:
-        updateCityDataFile()
+        #updateCityDataFile()
         updateDBFromData(redisDB)
 
     app.run(host='0.0.0.0', debug = False)

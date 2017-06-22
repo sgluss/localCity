@@ -27,33 +27,37 @@ def getCityProps(cityString):
 
     # Short circuit for bad data
     if len(propsList) != 19:
-        return
+        return None, None
 
     city = {}
+    cityExtra = {}
+
     city["geonameid"] = int(propsList[0]) if propsList[0] else -1
+    cityExtra["geonameid"] = int(propsList[0]) if propsList[0] else -1
+
     city["name"] = propsList[1]
-    city["asciiname"] = propsList[2]
-    city["alternatenames"] = propsList[3]
+    cityExtra["asciiname"] = propsList[2]
+    cityExtra["alternatenames"] = propsList[3]
     city["latitude"] = float(propsList[4])
     city["longitude"] = float(propsList[5])
-    city["feature class"] = propsList[6]
-    city["feature code"] = propsList[7]
+    cityExtra["feature class"] = propsList[6]
+    cityExtra["feature code"] = propsList[7]
     city["country code"] = propsList[8]
-    city["cc2"] = propsList[9]
-    city["admin1 code"] = propsList[10]
-    city["admin2 code"] = propsList[11]
-    city["admin3 code"] = propsList[12]
-    city["admin4 code"] = propsList[13]
+    cityExtra["cc2"] = propsList[9]
+    cityExtra["admin1 code"] = propsList[10]
+    cityExtra["admin2 code"] = propsList[11]
+    cityExtra["admin3 code"] = propsList[12]
+    cityExtra["admin4 code"] = propsList[13]
     city["population"] = int(propsList[14]) if propsList[14] else -1
-    city["elevation"] = int(propsList[15]) if propsList[15] else -1
-    city["dem"] = int(propsList[16]) if propsList[16] else -1
-    city["timezone"] = propsList[17]
-    city["modification date"] = propsList[18]
+    cityExtra["elevation"] = int(propsList[15]) if propsList[15] else -1
+    cityExtra["dem"] = int(propsList[16]) if propsList[16] else -1
+    cityExtra["timezone"] = propsList[17]
+    cityExtra["modification date"] = propsList[18]
 
-    return city
+    return city, cityExtra
 
 def addCityToDB(cityData, db):
-    city = getCityProps(cityData)
+    city, cityExtra = getCityProps(cityData)
 
     if city == None:
         return
@@ -67,3 +71,6 @@ def addCityToDB(cityData, db):
 
     # Add city data
     db.hset("cityData", city["geonameid"], json.dumps(city))
+
+    # Add city extra data
+    db.hset("cityExtraData", cityExtra["geonameid"], json.dumps(cityExtra))
