@@ -69,4 +69,7 @@ if __name__ == "__main__":
         updateCityDataFile()
         updateDBFromData(redisDB)
 
-    app.run(host='0.0.0.0', debug = False)
+    try:
+        app.run(host='0.0.0.0', debug = False)
+    except Exception as e:
+        print("Server has experienced an exception: " + str(e))
