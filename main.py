@@ -12,6 +12,16 @@ import redis
 
 from dbUtils import *
 
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Set up logging
+logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(filename='logs/log.log',level=logging.DEBUG)
+log = logging.getLogger()
+handler = RotatingFileHandler(name,maxBytes=1024,backupCount=1)
+log.addHandler(handler)
+
 app = Flask(__name__)
 Compress(app)
 CORS(app)
@@ -36,7 +46,7 @@ def updateDBFromData(db):
     fileName = dataZipURL.split('/')[-1][0:-4] + ".txt"
     with open(unzipOutput + fileName, 'r', encoding="utf8") as file:
         sourceData = file.read().split("\n")
-        print("Reading city data into Redis")
+        logging.debug("Reading city data into Redis")
 
         for entry in sourceData:
             addCityToDB(entry, db)
@@ -50,11 +60,11 @@ def updateCityDataFile():
     if not os.path.exists(unzipOutput):
         os.makedirs(unzipOutput)
 
-    print("Downloading city data zip file")
+    logging.info("Downloading city data zip file")
     urllib.request.urlretrieve(dataZipURL, downloadWorkingDir + fileName)
 
     # Unzip the downloaded file
-    print("unzipping city data text file")
+    logging.info("unzipping city data text file")
     zip_ref = zipfile.ZipFile(downloadWorkingDir + fileName, 'r')
     zip_ref.extractall(unzipOutput)
     zip_ref.close()
@@ -69,7 +79,10 @@ if __name__ == "__main__":
         updateCityDataFile()
         updateDBFromData(redisDB)
 
-    try:
-        app.run(host='0.0.0.0', debug = False)
-    except Exception as e:
-        print("Server has experienced an exception: " + str(e))
+    # App lives forever
+    while True:
+        try:
+            logging.info("Running server app")
+            app.run(host='0.0.0.0', debug = False)
+        except Exception as e:
+            logging.warning("Server has experienced an exception: " + str(e))
