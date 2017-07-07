@@ -19,7 +19,7 @@ from logging.handlers import RotatingFileHandler
 logging.basicConfig(format='%(asctime)s %(message)s')
 logging.basicConfig(filename='logs/log.log',level=logging.DEBUG)
 log = logging.getLogger()
-handler = RotatingFileHandler(name,maxBytes=1024,backupCount=1)
+handler = RotatingFileHandler('logs/log.log',maxBytes=1024,backupCount=1)
 log.addHandler(handler)
 
 app = Flask(__name__)
