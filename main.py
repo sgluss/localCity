@@ -13,13 +13,16 @@ import redis
 from dbUtils import *
 
 import logging
-from logging.handlers import RotatingFileHandler
+import logging.handlers
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s %(message)s')
-logging.basicConfig(filename='logs/log.log',level=logging.DEBUG)
-log = logging.getLogger()
-handler = RotatingFileHandler('logs/log.log',maxBytes=1024,backupCount=1)
+log = logging.getLogger('LocalCityLogger')
+log.setLevel(logging.DEBUG)
+# Add the log message handler to the logger
+handler = logging.handlers.RotatingFileHandler(
+    'logs/log.log', maxBytes=5 * 1024 * 1024, backupCount=5)
+
 log.addHandler(handler)
 
 app = Flask(__name__)
@@ -46,7 +49,7 @@ def updateDBFromData(db):
     fileName = dataZipURL.split('/')[-1][0:-4] + ".txt"
     with open(unzipOutput + fileName, 'r', encoding="utf8") as file:
         sourceData = file.read().split("\n")
-        logging.debug("Reading city data into Redis")
+        log.debug("Reading city data into Redis")
 
         for entry in sourceData:
             addCityToDB(entry, db)
@@ -60,11 +63,11 @@ def updateCityDataFile():
     if not os.path.exists(unzipOutput):
         os.makedirs(unzipOutput)
 
-    logging.info("Downloading city data zip file")
+    log.info("Downloading city data zip file")
     urllib.request.urlretrieve(dataZipURL, downloadWorkingDir + fileName)
 
     # Unzip the downloaded file
-    logging.info("unzipping city data text file")
+    log.info("unzipping city data text file")
     zip_ref = zipfile.ZipFile(downloadWorkingDir + fileName, 'r')
     zip_ref.extractall(unzipOutput)
     zip_ref.close()
@@ -82,7 +85,7 @@ if __name__ == "__main__":
     # App lives forever
     while True:
         try:
-            logging.info("Running server app")
+            log.info("Running server app")
             app.run(host='0.0.0.0', debug = False)
         except Exception as e:
-            logging.warning("Server has experienced an exception: " + str(e))
+            log.warning("Server has experienced an exception: " + str(e))
